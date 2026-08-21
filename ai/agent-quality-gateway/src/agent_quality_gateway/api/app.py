@@ -48,7 +48,6 @@ async def transport_error_handler(request: Request, exc: TransportError) -> JSON
 async def run(
         request: AppRequest,
         client: LLMClient = Depends(get_llm_client),
-
     ) -> AppResponse:
 
     content = await run_prompt(client, request.prompt)
