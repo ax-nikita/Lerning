@@ -30,17 +30,20 @@ async def test_generate_returns_content() -> None:
         pool=3.0,
     )
 
-    openai_client = OpenAICompatibleClient(
-        api_url="http://localhost:8080",
-        api_key="dwadawda",
-        transport=transport,
-        timeout=timeout,
-        model="qwen"
-    )
+    async with httpx.AsyncClient(
+            timeout=timeout,
+            transport=transport) as client:
 
-    content = await openai_client.generate("Hello")
+        openai_client = OpenAICompatibleClient(
+            api_url="http://localhost:8080",
+            api_key="dwadawda",
+            model="qwen",
+            client=client
+        )
 
-    assert content == 'fake llm response'
+        content = await openai_client.generate("Hello")
+
+        assert content == 'fake llm response'
 
 @pytest.mark.asyncio
 async def test_generate_maps_http_500_to_transport_error() -> None:
@@ -61,18 +64,21 @@ async def test_generate_maps_http_500_to_transport_error() -> None:
         pool=3.0,
     )
 
-    openai_client = OpenAICompatibleClient(
-        api_url="http://localhost:8080",
-        api_key="dwadawda",
-        transport=transport,
-        timeout=timeout,
-        model="qwen"
-    )
+    async with httpx.AsyncClient(
+            timeout=timeout,
+            transport=transport) as client:
 
-    with pytest.raises(TransportError) as error:
-        await openai_client.generate("Hello")
+        openai_client = OpenAICompatibleClient(
+            api_url="http://localhost:8080",
+            api_key="dwadawda",
+            model="qwen",
+            client=client
+        )
 
-    message = str(error.value)
+        with pytest.raises(TransportError) as error:
+            await openai_client.generate("Hello")
 
-    assert "500" in message
-    assert "model unavailable" in message
+        message = str(error.value)
+
+        assert "500" in message
+        assert "model unavailable" in message

@@ -8,7 +8,6 @@ class OpenAICompatibleClient:
     api_key: str
     model: str
     timeout: httpx.Timeout
-    transport: httpx.AsyncBaseTransport | None
     client: httpx.AsyncClient
 
     def __init__(
@@ -16,51 +15,41 @@ class OpenAICompatibleClient:
             api_url: str,
             api_key: str,
             model: str,
-            timeout: httpx.Timeout,
-            transport: httpx.AsyncBaseTransport | None = None,
+            client: httpx.AsyncClient
     ) -> None:
         self.api_url = api_url
         self.api_key = api_key
         self.model = model
-        self.timeout = timeout
-        self.transport = transport
-
-    def connect(self) -> None:
-        self.client = httpx.AsyncClient(
-            transport=self.transport,
-            timeout=self.timeout)
+        self.client = client
 
     async def generate(self, prompt: str) -> str:
-        if (not self.client is httpx.AsyncClient):
-            self.connect()
+        endpoint = f"{self.api_url}/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+        }
+        response = await self.client.post(
+            endpoint,
+            headers=headers,
+            json=payload
+        )
 
-        async with self.client as client:
-            endpoint = f"{self.api_url}/v1/chat/completions"
-            headers = {
-                "Authorization": f"Bearer {self.api_key}"
-            }
-            payload = {
-                "model": self.model,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
-            }
-            response = await client.post(
-                endpoint,
-                headers=headers,
-                json=payload
-            )
+        try:
+            response.raise_for_status()
+            return self._extract_content(response)
+        except httpx.HTTPStatusError as error:
+            raise TransportError(
+                f"HTTP {error.response.status_code}: {error.response.text}"
+            ) from error
 
-            try:
-                response.raise_for_status()
-                return self._extract_content(response)
-            except httpx.HTTPStatusError as error:
-                raise TransportError(
-                    f"HTTP {error.response.status_code}: {error.response.text}"
-                ) from error
 
     def _extract_content(self, response: httpx.Response) -> str:
         return response.json()["choices"][0]["message"]["content"]
