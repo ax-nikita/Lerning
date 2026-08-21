@@ -7,6 +7,7 @@ from agent_quality_gateway.api.models import AppResponse, AppRequest, ErrorRespo
 from agent_quality_gateway.clients import LLMClient, FakeLLMClient
 from agent_quality_gateway.core import run_prompt
 from agent_quality_gateway.exceptions import TransportError
+from agent_quality_gateway.models import Request
 
 app = FastAPI(
     title="Agent Quality Gateway",
@@ -23,6 +24,16 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
+@app.exception_handler(TransportError)
+async def transport_error_handler(request: Request, exc: TransportError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_502_BAD_GATEWAY,
+        content=ErrorResponse(
+            error="transport_error",
+            message=str(exc)
+        ).model_dump()
+    )
+
 @app.post("/v1/run", response_model=AppResponse)
 async def run(
         request: AppRequest,
@@ -30,17 +41,7 @@ async def run(
 
     ) -> AppResponse:
 
-    try:
-        content = await run_prompt(client, request.prompt)
-    except TransportError as error:
-        JSONResponse(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            content=ErrorResponse(
-                error="transport_error",
-                message=str(error)
-            ).model_dump()
-        )
-
+    content = await run_prompt(client, request.prompt)
 
     return AppResponse(
         content=content
