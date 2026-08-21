@@ -10,3 +10,7 @@ class LLMClient(Protocol):
 class FakeLLMClient:
     async def generate(self, prompt: str) -> str:
         return "fake response"
+
+class TransportErrorLLMClient:
+    async def generate(self, prompt: str) -> str:
+        raise TransportError("fake TransportError")
