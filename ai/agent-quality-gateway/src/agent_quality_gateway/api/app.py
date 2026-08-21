@@ -25,9 +25,9 @@ async def health() -> dict:
 
 
 @app.exception_handler(SchemaError)
-async def transport_error_handler(request: Request, exc: SchemaError) -> JSONResponse:
+async def schema_error_handler(request: Request, exc: SchemaError) -> JSONResponse:
     return JSONResponse(
-        status_code=status.HTTP_502_BAD_GATEWAY,
+        status_code=status.HTTP_400_BAD_REQUEST,
         content=ErrorResponse(
             error="schema_error",
             message=str(exc)

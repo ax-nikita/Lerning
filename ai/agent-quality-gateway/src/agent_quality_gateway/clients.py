@@ -9,5 +9,4 @@ class LLMClient(Protocol):
 
 class FakeLLMClient:
     async def generate(self, prompt: str) -> str:
-        raise TransportError("test failure")
         return "fake response"
