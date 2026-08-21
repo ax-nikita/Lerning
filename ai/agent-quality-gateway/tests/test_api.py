@@ -29,12 +29,12 @@ async def test_fake_generate() -> None:
     assert response.status_code == 200
 
     llm_client = get_llm_client()
-    llm_result = run_prompt(llm_client, prompt)
+    llm_result = await run_prompt(llm_client, prompt)
 
     assert response.json()["content"] == llm_result
 
 @pytest.mark.asyncio
-async def test_fake_generate() -> None:
+async def test_empty_prompt() -> None:
     response = client.post(
         "/v1/run",
         json={
