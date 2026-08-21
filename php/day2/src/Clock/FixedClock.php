@@ -5,13 +5,13 @@ namespace App\Clock;
 
 final class FixedClock implements Clock
 {
-    readonly string $fixedTime;
+    readonly \DateTimeImmutable $fixedTime;
 
     function __construct(string $fixedTime) {
-        $this->fixedTime = $fixedTime;
+        $this->fixedTime = new \DateTimeImmutable($fixedTime);
     }
     public function getTime(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable($this->fixedTime);
+        return $this->fixedTime;
     }
 }

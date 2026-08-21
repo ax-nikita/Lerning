@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Application\CreateTicketService;
 use App\Ticket\InMemoryTicketRepository;
 use App\Ticket\InvalidTicketIdException;
 use App\Ticket\TicketAlreadyExistsException;
@@ -179,16 +180,75 @@ try {
 
 echo 'Repository duplicate: '.($test_result ? 'PASS' : 'FAIL')."\r\n";
 
-// Test Repository DIP
+// DIP test
 
-function saveTicket(
-    \App\Ticket\TicketRepository $repository,
-    Ticket $ticket
-): void
-{
-    $repository->add($ticket);
+$test_result = false;
+
+try {
+    $title = 'Тест';
+    $priority = TicketPriority::High;
+    $id = new TicketId(bin2hex(random_bytes(16)));
+    $status = TicketStatus::New;
+    $createdAt = new DateTimeImmutable;
+
+    $ticket = new Ticket(
+        $title,
+        $priority,
+        $status,
+        $createdAt,
+        $id
+    );
+
+    function saveTicket(
+        \App\Ticket\TicketRepository $repository,
+        Ticket $ticket
+    ): void
+    {
+        $repository->add($ticket);
+    }
+
+    $repository = new InMemoryTicketRepository();
+
+    saveTicket($repository, $ticket);
+
+    $test_result = true;
+} catch (
+    InvalidTicketIdException $th
+) {
+    $test_result = false;
 }
 
-$repository = new InMemoryTicketRepository();
+echo 'Repository DIP test: '.($test_result ? 'PASS' : 'FAIL')."\r\n";
 
-saveTicket($repository, $ticket);
+// happy path test Ticket CreateTicketService
+
+$test_result = false;
+
+try {
+    $title = 'Тест';
+    $priority = TicketPriority::High;
+    $id = new TicketId(bin2hex(random_bytes(16)));
+    $status = TicketStatus::New;
+
+    $repository = new InMemoryTicketRepository();
+    $clock = new \App\Clock\FixedClock('2026-08-06 15:08:24');
+
+    $service = new CreateTicketService($repository, $clock);
+
+    $ticket = $service->create($title, $priority, $id, $status);
+
+    if (
+        $ticket->createdAt == $clock->getTime() &&
+        $ticket->title == $title &&
+        $ticket->id->value() == $id->value() &&
+        $ticket->status == $status &&
+        $ticket->priority == $priority
+    ) {
+        $test_result = true;
+    }
+
+} catch (TicketAlreadyExistsException $th) {
+    $test_result = false;
+}
+
+echo 'est Ticket CreateTicketService: '.($test_result ? 'PASS' : 'FAIL')."\r\n";
