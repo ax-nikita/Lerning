@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AppRequest(BaseModel):
     prompt: str
 
 class AppResponse(BaseModel):
-    response: str
+    content: str = Field(min_length=1)
