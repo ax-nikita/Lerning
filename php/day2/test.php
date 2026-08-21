@@ -230,25 +230,42 @@ try {
     $id = new TicketId(bin2hex(random_bytes(16)));
     $status = TicketStatus::New;
 
+    $createdAt = new \DateTimeImmutable('2026-08-06 15:08:24');
     $repository = new InMemoryTicketRepository();
-    $clock = new \App\Clock\FixedClock('2026-08-06 15:08:24');
+    $clock = new \App\Clock\FixedClock($createdAt);
 
     $service = new CreateTicketService($repository, $clock);
 
     $ticket = $service->create($title, $priority, $id, $status);
 
     if (
-        $ticket->createdAt == $clock->getTime() &&
+        $ticket->createdAt === $createdAt &&
         $ticket->title == $title &&
         $ticket->id->value() == $id->value() &&
         $ticket->status == $status &&
-        $ticket->priority == $priority
+        $ticket->priority == $priority &&
+        $ticket->assigneeId === null &&
+        $repository->find($ticket->id) == $ticket
     ) {
         $test_result = true;
     }
 
+    if ($test_result) {
+        // part two, test assigneeId
+
+        $id = new TicketId(bin2hex(random_bytes(16)));
+
+        $assigneeId = 12;
+        $ticket = $service->create($title, $priority, $id, $status, $assigneeId);
+
+        if ($ticket->assigneeId === $assigneeId) {
+            $test_result = true;
+        } else {
+            $test_result = false;
+        }
+    }
 } catch (TicketAlreadyExistsException $th) {
     $test_result = false;
 }
 
-echo 'est Ticket CreateTicketService: '.($test_result ? 'PASS' : 'FAIL')."\r\n";
+echo 'Test Ticket CreateTicketService(+ assigneeId): '.($test_result ? 'PASS' : 'FAIL')."\r\n";
