@@ -5,6 +5,9 @@
       <PhpSpecSuiteConfiguration>
         <option name="myPath" value="$PROJECT_DIR$/php/day2" />
       </PhpSpecSuiteConfiguration>
+      <PhpSpecSuiteConfiguration>
+        <option name="myPath" value="$PROJECT_DIR$/php/day2" />
+      </PhpSpecSuiteConfiguration>
     </suites>
   </component>
 </project>

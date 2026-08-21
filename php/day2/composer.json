@@ -12,18 +12,26 @@
       "App\\": "src/"
     }
   },
-
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
   "config": {
     "platform": {
       "php": "8.5.4"
+    },
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
     }
   },
   "require-dev": {
     "phpstan/phpstan": "2.2",
-    "laravel/pint": "^1.30"
+    "laravel/pint": "^1.30",
+    "pestphp/pest": "^5.0"
   },
   "scripts": {
-    "test": "@php test.php",
+    "test": "@php vendor/bin/pest",
     "analyse": "@php vendor/bin/phpstan analyse src --level=8",
     "lint": [
       "@php -l src/Ticket/Ticket.php",
