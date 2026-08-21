@@ -7,5 +7,18 @@ name = "agent-quality-gateway"
 version = "0.1.0"
 requires-python = ">=3.14"
 
+dependencies = [
+    "httpx",
+    "fastapi",
+    "pydantic",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+]
+
 [project.scripts]
 agent-quality-gateway = "agent_quality_gateway.cli:main"
