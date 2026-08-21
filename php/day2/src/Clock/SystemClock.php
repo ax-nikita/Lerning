@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Clock;
 
-class SystemClock implements Clock
+final class SystemClock implements Clock
 {
     public function getTime(): \DateTimeImmutable
     {

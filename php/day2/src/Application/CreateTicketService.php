@@ -10,7 +10,7 @@ use App\Ticket\TicketPriority;
 use App\Ticket\TicketRepository;
 use App\Ticket\TicketStatus;
 
-class CreateTicketService
+final class CreateTicketService
 {
     private TicketRepository $ticketRepository;
     private Clock $clock;
@@ -25,9 +25,9 @@ class CreateTicketService
 
     public function create(string $title, TicketPriority $priority, TicketId $id, TicketStatus $status, ?int $assigneeId = null) : Ticket
     {
-        $createAt = $this->clock->getTime();
+        $createdAt = $this->clock->getTime();
 
-        $ticket = new Ticket($title, $priority, $status, $createAt, $id, $assigneeId);
+        $ticket = new Ticket($title, $priority, $status, $createdAt, $id, $assigneeId);
         $this->ticketRepository->add($ticket);
 
         return $ticket;
