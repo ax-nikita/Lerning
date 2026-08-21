@@ -7,16 +7,26 @@ import pytest
 
 from agent_quality_gateway.clients import FakeLLMClient
 from agent_quality_gateway.core import run_prompt
-from agent_quality_gateway.exceptions import TransportError
+from agent_quality_gateway.exceptions import TransportError, SchemaError
 
 client = TestClient(app)
 
+TRANSPORT_ERROR_MESSAGE = "fake TransportError"
+SCHEMA_ERROR_MESSAGE = "fake SchemaError"
+
 class TransportErrorLLMClient:
     async def generate(self, prompt: str) -> str:
-        raise TransportError("fake TransportError")
+        raise TransportError(TRANSPORT_ERROR_MESSAGE)
+
+class SchemaErrorLLMClient:
+    async def generate(self, prompt: str) -> str:
+        raise SchemaError(SCHEMA_ERROR_MESSAGE)
 
 def get_transport_error_llm_client() -> TransportErrorLLMClient:
     return TransportErrorLLMClient()
+
+def get_schema_error_llm_client() -> SchemaErrorLLMClient:
+    return SchemaErrorLLMClient()
 
 def get_fake_llm_client() -> FakeLLMClient:
     return FakeLLMClient()
@@ -73,7 +83,7 @@ async def test_empty_prompt() -> None:
 
 
 @pytest.mark.asyncio
-async def test_transport_errpr_expection() -> None:
+async def test_transport_error_exception() -> None:
     app.dependency_overrides[get_llm_client] = get_transport_error_llm_client
 
     response = client.post(
@@ -85,13 +95,26 @@ async def test_transport_errpr_expection() -> None:
 
     app.dependency_overrides.clear()
 
-    error_content = ""
-
-    try:
-        result = await get_transport_error_llm_client().generate("test")
-    except TransportError as error:
-        error_content = str(error)
-
     assert response.status_code == 502
     assert response.json()["error"] == "transport_error"
-    assert response.json()["message"] == error_content
+    assert response.json()["message"] == TRANSPORT_ERROR_MESSAGE
+
+
+@pytest.mark.asyncio
+async def test_schema_error_exception() -> None:
+    app.dependency_overrides[get_llm_client] = get_schema_error_llm_client
+
+    response = client.post(
+        "/v1/run",
+        json={
+            "prompt": "daw",
+        },
+    )
+
+    app.dependency_overrides.clear()
+
+    assert response.status_code == 400
+    assert response.json()["error"] == "schema_error"
+    assert response.json()["message"] == SCHEMA_ERROR_MESSAGE
+
+
