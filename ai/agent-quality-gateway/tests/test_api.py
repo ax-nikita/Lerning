@@ -5,10 +5,15 @@ from agent_quality_gateway.api.app import app, get_llm_client
 
 import pytest
 
-from agent_quality_gateway.clients import TransportErrorLLMClient, FakeLLMClient
+from agent_quality_gateway.clients import FakeLLMClient
 from agent_quality_gateway.core import run_prompt
+from agent_quality_gateway.exceptions import TransportError
 
 client = TestClient(app)
+
+class TransportErrorLLMClient:
+    async def generate(self, prompt: str) -> str:
+        raise TransportError("fake TransportError")
 
 def get_transport_error_llm_client() -> TransportErrorLLMClient:
     return TransportErrorLLMClient()
@@ -80,4 +85,13 @@ async def test_transport_errpr_expection() -> None:
 
     app.dependency_overrides.clear()
 
+    error_content = ""
+
+    try:
+        result = await get_transport_error_llm_client().generate("test")
+    except TransportError as error:
+        error_content = str(error)
+
     assert response.status_code == 502
+    assert response.json()["error"] == "transport_error"
+    assert response.json()["message"] == error_content
