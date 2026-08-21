@@ -19,7 +19,7 @@ class AppResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     error: str = Field(
-        description="camelcase error name",
+        description="snake case error name",
         examples=["example_error"]
     )
     message: str = Field(

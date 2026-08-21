@@ -46,8 +46,19 @@ async def transport_error_handler(request: Request, exc: TransportError) -> JSON
 
 @app.post(
     "/v1/run",
-          response_model=AppResponse,
-          summary="LLM API")
+    response_model=AppResponse,
+    summary="LLM API",
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Struct error",
+        },
+        502: {
+            "model": ErrorResponse,
+            "description": "Transport error",
+        }
+    },
+)
 async def run(
         request: AppRequest,
         client: LLMClient = Depends(get_llm_client),
