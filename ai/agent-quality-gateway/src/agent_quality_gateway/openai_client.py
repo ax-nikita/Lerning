@@ -9,6 +9,7 @@ class OpenAICompatibleClient:
     model: str
     timeout: httpx.Timeout
     transport: httpx.AsyncBaseTransport | None
+    client: httpx.AsyncClient
 
     def __init__(
             self,
@@ -24,11 +25,16 @@ class OpenAICompatibleClient:
         self.timeout = timeout
         self.transport = transport
 
+    def connect(self) -> None:
+        self.client = httpx.AsyncClient(
+            transport=self.transport,
+            timeout=self.timeout)
+
     async def generate(self, prompt: str) -> str:
-        async with httpx.AsyncClient(
-                transport=self.transport,
-                timeout=self.timeout
-        ) as client:
+        if (not self.client is httpx.AsyncClient):
+            self.connect()
+
+        async with self.client as client:
             endpoint = f"{self.api_url}/v1/chat/completions"
             headers = {
                 "Authorization": f"Bearer {self.api_key}"

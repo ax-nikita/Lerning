@@ -9,14 +9,14 @@ use App\Application\CreateTicketService;
 
 use App\Clock\FixedClock;
 
-test('Create Ticket full Happy Test', function () {
+test('creates and stores ticket with fixed time', function () {
     $title = 'Тест';
     $priority = TicketPriority::High;
     $id = new TicketId(bin2hex(random_bytes(16)));
     $status = TicketStatus::New;
 
     $createdAt = new \DateTimeImmutable('2026-08-06 15:08:24');
-    $repository = new inMemoryTicketRepository();
+    $repository = new InMemoryTicketRepository();
     $clock = new FixedClock($createdAt);
 
     $service = new CreateTicketService($repository, $clock);
