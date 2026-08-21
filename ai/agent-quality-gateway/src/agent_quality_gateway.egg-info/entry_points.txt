@@ -1,0 +1,2 @@
+[console_scripts]
+agent-quality-gateway = agent_quality_gateway.cli:main
