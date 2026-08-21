@@ -44,7 +44,10 @@ async def transport_error_handler(request: Request, exc: TransportError) -> JSON
         ).model_dump()
     )
 
-@app.post("/v1/run", response_model=AppResponse)
+@app.post(
+    "/v1/run",
+          response_model=AppResponse,
+          summary="LLM API")
 async def run(
         request: AppRequest,
         client: LLMClient = Depends(get_llm_client),
