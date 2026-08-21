@@ -16,6 +16,7 @@ async def health() -> dict:
 
 @app.post("/v1/run", response_model=AppResponse)
 async def run(request: AppRequest) -> AppResponse:
-    return AppResponse(
+    content = AppResponse(
         content=request.prompt
     )
+    return content

@@ -5,4 +5,4 @@ class AppRequest(BaseModel):
     prompt: str
 
 class AppResponse(BaseModel):
-    content: str = Field(min_length=1)
+    content: str = Field (min_length=1)
