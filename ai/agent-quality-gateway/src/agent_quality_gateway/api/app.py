@@ -2,12 +2,12 @@ import fastapi
 from fastapi import FastAPI, Depends
 from starlette import status
 from starlette.responses import JSONResponse
+from starlette.requests import Request
 
 from agent_quality_gateway.api.models import AppResponse, AppRequest, ErrorResponse
 from agent_quality_gateway.clients import LLMClient, FakeLLMClient
 from agent_quality_gateway.core import run_prompt
-from agent_quality_gateway.exceptions import TransportError
-from agent_quality_gateway.models import Request
+from agent_quality_gateway.exceptions import TransportError, SchemaError
 
 app = FastAPI(
     title="Agent Quality Gateway",
@@ -23,6 +23,16 @@ def get_llm_client() -> LLMClient:
 async def health() -> dict:
     return {"status": "ok"}
 
+
+@app.exception_handler(SchemaError)
+async def transport_error_handler(request: Request, exc: SchemaError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_502_BAD_GATEWAY,
+        content=ErrorResponse(
+            error="schema_error",
+            message=str(exc)
+        ).model_dump()
+    )
 
 @app.exception_handler(TransportError)
 async def transport_error_handler(request: Request, exc: TransportError) -> JSONResponse:
