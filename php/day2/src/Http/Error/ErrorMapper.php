@@ -13,20 +13,26 @@ final class ErrorMapper
         switch ($exception::class) {
             case RequestValidationException::class:
                 return new HttpResponse(422, [
-                    'code' => $exception->getCode(),
-                    'message' => $exception->getMessage(),
+                    'error' => [
+                        'code' => 'validation_failed',
+                        'message' => $exception->getMessage(),
+                    ]
                 ]);
                 break;
             case TicketAlreadyExistsException::class:
                 return new HttpResponse(409, [
-                    'code' => $exception->getCode(),
-                    'message' => $exception->getMessage(),
+                    'error' => [
+                        'code' => 'ticket_already_exists',
+                        'message' => $exception->getMessage(),
+                    ]
                 ]);
                 break;
             default:
                 return new HttpResponse(500, [
-                    'code' => $exception->getCode(),
-                    'message' => 'Domain error',
+                    'error' => [
+                        'code' => 'internal_error',
+                        'message' => 'Internal server error',
+                    ]
                 ]);
                 break;
         }

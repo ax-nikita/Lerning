@@ -13,8 +13,10 @@ test('request_validation_error', function () {
     $response = $error_mapper->map($exec);
 
     expect($response->body)->toBe([
-        'code' => $exec->getCode(),
-        'message' => ERROR_MESSAGE,
+        'error' => [
+            'code' => 'validation_failed',
+            'message' => ERROR_MESSAGE,
+        ]
     ]);
 
     expect($response->statusCode)->toBe(422);
@@ -28,8 +30,10 @@ test('ticket_alredy_exists_error', function () {
     $response = $error_mapper->map($exec);
 
     expect($response->body)->toBe([
-        'code' => $exec->getCode(),
-        'message' => ERROR_MESSAGE,
+        'error' => [
+            'code' => 'ticket_already_exists',
+            'message' => ERROR_MESSAGE,
+        ]
     ]);
 
     expect($response->statusCode)->toBe(409);
@@ -43,8 +47,10 @@ test('other_expection', function () {
     $response = $error_mapper->map($exec);
 
     expect($response->body)->toBe([
-        'code' => $exec->getCode(),
-        'message' => 'Domain error', // тут фиксированно возвращаем что-бы не было лишней информации
+        'error' => [
+            'code' => 'internal_error',
+            'message' => 'Internal server error', // тут фиксированно возвращаем что-бы не было лишней информации
+        ]
     ]);
 
     expect($response->statusCode)->toBe(500);
