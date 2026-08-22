@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Exception\RequestValidationException;
 use App\Http\Request\CreateTicketRequest;
 
 use App\Ticket\TicketStatus;
@@ -34,7 +35,7 @@ test('creates from not valid and broken array values', function () {
 
         expect(
             fn () => CreateTicketRequest::fromArray($not_valid_array)
-        )->toThrow(CreateTicketRequest::REQUEST_VALIDATION_ERROR);
+        )->toThrow(RequestValidationException::class);
 
         $brocken_array = $not_valid_array;
         unset($brocken_array[$key]);
@@ -47,9 +48,7 @@ test('creates from not valid and broken array values', function () {
         } else {
             expect(
                 fn () => CreateTicketRequest::fromArray($brocken_array)
-            )->toThrow(CreateTicketRequest::REQUEST_VALIDATION_ERROR);
+            )->toThrow(RequestValidationException::class);
         }
-
-
     }
 });
