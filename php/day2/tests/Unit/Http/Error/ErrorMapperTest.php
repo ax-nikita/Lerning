@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Error\ErrorCode;
 use App\Http\Error\ErrorMapper;
 use App\Ticket\TicketAlreadyExistsException;
 
@@ -14,7 +15,7 @@ test('request_validation_error', function () {
 
     expect($response->body)->toBe([
         'error' => [
-            'code' => 'validation_failed',
+            'code' => ErrorCode::ValidationFailed->value,
             'message' => ERROR_MESSAGE,
         ]
     ]);
@@ -31,7 +32,7 @@ test('ticket_alredy_exists_error', function () {
 
     expect($response->body)->toBe([
         'error' => [
-            'code' => 'ticket_already_exists',
+            'code' => ErrorCode::TicketAlreadyExists->value,
             'message' => ERROR_MESSAGE,
         ]
     ]);
@@ -48,7 +49,7 @@ test('other_expection', function () {
 
     expect($response->body)->toBe([
         'error' => [
-            'code' => 'internal_error',
+            'code' => ErrorCode::InternalError->value,
             'message' => 'Internal server error', // тут фиксированно возвращаем что-бы не было лишней информации
         ]
     ]);

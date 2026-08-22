@@ -14,7 +14,7 @@ final class ErrorMapper
             case RequestValidationException::class:
                 return new HttpResponse(422, [
                     'error' => [
-                        'code' => 'validation_failed',
+                        'code' => ErrorCode::ValidationFailed->value,
                         'message' => $exception->getMessage(),
                     ]
                 ]);
@@ -22,7 +22,7 @@ final class ErrorMapper
             case TicketAlreadyExistsException::class:
                 return new HttpResponse(409, [
                     'error' => [
-                        'code' => 'ticket_already_exists',
+                        'code' => ErrorCode::TicketAlreadyExists->value,
                         'message' => $exception->getMessage(),
                     ]
                 ]);
@@ -30,7 +30,7 @@ final class ErrorMapper
             default:
                 return new HttpResponse(500, [
                     'error' => [
-                        'code' => 'internal_error',
+                        'code' => ErrorCode::InternalError->value,
                         'message' => 'Internal server error',
                     ]
                 ]);
