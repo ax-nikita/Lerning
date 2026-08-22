@@ -32,23 +32,24 @@ test('creates from not valid and broken array values', function () {
         $not_valid_array = $template_array;
         $not_valid_array[$key] = array("fake");
 
-        try {
-            $dot = CreateTicketRequest::fromArray($not_valid_array);
-        } catch (\InvalidArgumentException $exception) {
-            $dot = "{$key} not valid error success";
-        }
-
-        expect($dot)->toBe("{$key} not valid error success");
-
+        expect(
+            fn () => CreateTicketRequest::fromArray($not_valid_array)
+        )->toThrow(\InvalidArgumentException::class);
+        
         $brocken_array = $not_valid_array;
         unset($brocken_array[$key]);
 
-        try {
-            $dot = CreateTicketRequest::fromArray($not_valid_array);
-        } catch (\InvalidArgumentException $exception) {
-            $dot = "{$key} broken error success";
+        // для assigneeId проверка не наличия не нужна, на оборот создание должно быть валидным н
+        if ($key == "assigneeId") {
+            $dot = CreateTicketRequest::fromArray($brocken_array);
+            expect($dot)->toBeInstanceOf(CreateTicketRequest::class);
+            expect($dot->assigneeId)->toBe(null);
+        } else {
+            expect(
+                fn () => CreateTicketRequest::fromArray($brocken_array)
+            )->toThrow(\InvalidArgumentException::class);
         }
 
-        expect($dot)->toBe("{$key} broken error success");
+
     }
 });
