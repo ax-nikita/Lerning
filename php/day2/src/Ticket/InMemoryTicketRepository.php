@@ -29,4 +29,15 @@ final class InMemoryTicketRepository implements TicketRepository
 
         return null;
     }
+
+    public function clear() : void
+    {
+        $this->tickets = [];
+    }
+
+    public function delete(TicketId $ticketId) : void {
+        if ($this->find($ticketId) !== null) {
+            unset($this->tickets[$ticketId->value()]);
+        }
+    }
 }
